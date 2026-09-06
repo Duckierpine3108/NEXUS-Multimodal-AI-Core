@@ -1,177 +1,125 @@
-# ⚙️ MARK LI (51)
-### The Ultimate Cross-Platform Personal AI Assistant — By FatihMakes
+# NEXUS // MARK I — Multimodal Autonomous Desktop AI Core
 
-> 📺 **[Watch the full setup video on YouTube](https://www.youtube.com/@FatihMakes)**
+NEXUS is a native desktop artificial intelligence assistant built from the ground up in Python and WebGL. It integrates real-time bidirectional audio streaming, computer vision, operating system automation, an autonomous developer agent, and an interactive 3D humanoid avatar running locally at 60 FPS.
 
-A real-time voice AI that can hear, see, understand, and control your computer — on any OS. Supports Windows, macOS, and Linux. Built on the Gemini Live API for native audio streaming, delivering zero subscriptions and total digital autonomy.
-
----
-
-## ✨ Overview
-
-MARK LI is the final form of the core: an assistant you extend without ever touching its engine. Drop a single plugin file into the `plugins/` folder and JARVIS learns a new skill on the next launch — no code changes, no configuration, no risk. On top of that, the voice itself got smarter: JARVIS now hears the emotion in your voice, knows when you're talking to someone else in the room and stays silent, and can hold one conversation for hours without losing the thread.
-
-It's not just an assistant — it's an extension of your digital life.
+Unlike standard API wrappers, NEXUS operates as an autonomous OS companion capable of perceiving its physical surroundings, analyzing active screens, controlling system hardware, and executing multi-file software engineering tasks.
 
 ---
 
-## 🚀 Capabilities
+## Key Architecture & Core Systems
 
-### Core Features
-| Feature | Description |
-|---|---|
-| 🧩 Plugin System | Drop a single `.py` file into `plugins/` — JARVIS learns a new skill on next launch |
-| 🎙️ Real-time Voice | Ultra-low latency conversation in any language via Gemini Live API |
-| 💓 Affective Dialog | Hears the emotion in your voice and adapts its tone in response |
-| 🤫 Proactive Audio | Knows when you're not talking to it — background chatter never triggers a reply |
-| ♾️ Unlimited Sessions | Sliding-window context compression — one conversation can last for hours |
-| 🖥️ System Control | Launch apps, adjust volume/brightness, WiFi, shortcuts, power — all by voice |
-| 🧩 Autonomous Tasks | High-level planning for complex multi-step goals via agent mode |
-| 👁️ Visual Awareness | Real-time screen capture and webcam vision piped into your main Gemini session |
-| 🧠 Persistent Memory | Deeply remembers projects, preferences, and personal context across sessions |
-| ⌨️ Hybrid Input | Seamlessly switch between keyboard typing and voice commands |
-| 🌅 Morning Briefing | On first boot: greets you, reads the time, recaps yesterday, and fetches live news |
-| 🔔 Proactive 2.0 | Time-aware, context-aware check-ins — knows the time of day, your projects, and what you've been discussing |
-| 🗓️ Session Memory | Summarises each conversation and mentions it naturally next morning — consumed after use, never repeats |
-| 👁️‍🗨️ Background Monitoring | User-configured topic watching — checks for new headlines once a day and alerts naturally |
-| 📊 Hardware Monitoring | Continuous CPU, RAM, GPU and temperature telemetry with localized voice alerts |
-| 🌤️ Weather Report | Live weather data for your city, personalized from memory |
-| 🗺️ Dynamic Content Panel | Scrollable display layer beneath the HUD that renders web results, news, and search data |
-| 🔍 Multi-Mode Web Search | `news` / `research` / `price` / `compare` / `search` — Gemini Grounded first, DDG fallback |
-| ⏰ Smart Reminders | OS-native scheduled notifications (Windows Task Scheduler / macOS LaunchAgent / Linux systemd) |
-| ✈️ Flight Finder | Live flight price and availability lookup |
-| 🎮 Game Updater | Checks and triggers game updates on Steam and Epic Games on demand |
-| 📂 File Processor | Read, summarize, and answer questions about local files |
-| 💻 Code Helper | Inline code review, debugging, and generation |
-| 🌐 Browser Control | Open URLs, navigate tabs, and interact with the browser by voice |
-| 📨 Send Message | Compose and send messages through WhatsApp, Telegram, and more |
-| 🎬 YouTube Control | Search, play, and control YouTube playback by voice |
-| 🖱️ Desktop Control | Taskbar, window management, and desktop-level operations |
-| 🧑‍💻 Silent Language Memory | Detects spoken language on first use — all future sessions adapt automatically |
-| 📱 Remote Dashboard | Control the assistant from your phone via QR code pairing |
-| ⚡ Auto-Start on Boot | Registers with the OS startup system (registry / LaunchAgent / .desktop) |
-| 📋 Clipboard Intelligence | Copy any text → floating panel with Translate / Summarise / Explain / Fix |
-| 🎨 Assistant Customization | Change the assistant name and your name from the UI — takes effect immediately |
+### 1. 3D Neural Avatar & Real-Time Lip Sync Engine
+- **WebGL2 / Three.js Runtime:** Embeds a 3D humanoid avatar (generated via Avaturn) natively inside a desktop PyQt6 viewport.
+- **Hardware-Driven Audio Watchdog:** Lip-sync articulation is driven directly by active speaker audio buffers rather than text-to-speech approximations. Features an automated 140ms watchdog decay that strictly closes the mouth when voice audio stops.
+- **Armature & Bone Calibration:** Hardcoded Euler angular offsets lock upper arms (`64°, 13°, 11°`) and shoulders (`12°, 0°, 0°`) to prevent T-pose distortion.
+- **1:1 MediaPipe Head & Eye Tracking:** Real-time facial landmark detection (MediaPipe FaceMesh) tracks user head position and gaze direction via webcam.
+- **Procedural Blinking:** Natural sinusoidal eyelid blink cycle firing every ~4.5 seconds.
+
+### 2. Low-Latency Voice Streaming (Gemini Multimodal Live)
+- **Bidirectional WebSocket Pipeline:** Low-latency native audio streaming (16kHz PCM input, 24kHz PCM output) powered by Google's Gemini Multimodal Live API.
+- **Acoustic Echo Cancellation Gate:** Automatically mutes microphone capture while the AI is outputting audio through speakers to prevent audio feedback loops.
+- **Instant Speech Interruption:** Pressing ESC or speaking mid-sentence drains pending audio queues and immediately returns to listening state.
+- **Configurable Thinking Levels:** Dynamic reasoning budget selector (Low, Medium, High) to allocate extended analytical processing tokens.
+
+### 3. Multimodal Computer Vision & Safe Hardware Arbitration
+- **Physical Object Recognition:** Captures high-resolution webcam frames on command to identify objects, documents, and physical hardware.
+- **Windows DirectShow Conflict Arbiter:** Automatically pauses avatar webcam tracking before taking OpenCV camera captures, preventing Windows `0xC0000005` COM access violations and driver crashes.
+- **Live Screen Analysis:** Captures and evaluates multi-monitor screen regions for code debugging, layout inspection, and error diagnosis.
+- **Picture-in-Picture Preview:** Displays floating camera capture snapshots directly inside the UI.
+
+### 4. Autonomous Developer Agent & Direct OS Automation
+- **Autonomous Dev Agent:** Plans multi-file project architectures, writes code across files, resolves and installs pip dependencies, opens the project in VSCode, and runs execution tests.
+- **Direct System Settings:** Controls Windows master volume scalar via Core Audio APIs / pycaw, adjusts display brightness, toggles Dark/Light mode, manages active windows, and executes system power states.
+- **GUI Automation:** Mouse movement, coordinate-based clicks, keyboard typing simulation, and hotkey injection via PyAutoGUI.
+- **Multimodal File Drop Zone:** Drag-and-drop file processing for PDFs, CSVs, images, code files, and documents with instant OCR and summarization.
+
+### 5. 3D Spatial Telemetry & Mobile Remote Dashboard
+- **3D Spatial Satellite Map:** Integrated Leaflet mapping engine with 22x zoom satellite and dark street layers for physical hardware and fleet GPS tracking.
+- **Hardware Telemetry Gauges:** Real-time monitoring of CPU, RAM, Network I/O, and dedicated NVIDIA GPU utilization via NVML C-types integration.
+- **Mobile Web Remote Access:** Built-in local FastAPI server with 10-minute expiring secure QR codes and passkeys allowing any smartphone on the local network to stream microphone audio directly into NEXUS.
+- **Long-Term Memory Engine:** Extracts and stores user identity, preferences, active projects, and end-of-session summaries in local JSON memory.
 
 ---
 
-## 🆕 What's New in Mark LI
+## Repository Structure
 
-### 🧩 Plugin System — Extend JARVIS Without Touching a Single Core File
-The headline feature of Mark LI, and the reason it's the final architecture version. Every new capability from now on ships as a single `.py` file:
-
-1. Download a plugin file (e.g. `calorie_counter.py`)
-2. Drop it into the `plugins/` folder
-3. Restart JARVIS — done. The skill is live, by voice, in any language.
-
-Each plugin declares its own Gemini tool schema and logic in one file. The engine auto-discovers it at startup, registers it with the Live session, and lists it in the new **🧩 Plugin Manager** panel where every plugin gets its own persistent ON/OFF toggle.
-
-Safety is built in at three layers: a broken or badly written plugin can **never** crash JARVIS — it simply shows up as "BROKEN" in the manager with the error explained, while every other tool and plugin keeps working. Name collisions with core tools are detected and rejected automatically. Want to write your own? Copy `plugins/_template.py` and fill in two things: the `PLUGIN` dict and the `run()` function.
-
-### 💓 Affective Dialog — JARVIS Hears How You Feel
-Powered by Gemini Live's native audio understanding, JARVIS now picks up the emotion in your voice — excitement, frustration, fatigue — and adapts its own tone in response. Late-night tired questions get calm answers; excited announcements get energy back.
-
-### 🤫 Proactive Audio — Knows When You're Not Talking to It
-The biggest quality-of-life upgrade for an always-listening assistant: JARVIS can now tell when speech isn't addressed to it. Talking to someone in the room, taking a phone call, TV in the background — it stays silent instead of interjecting. No wake word needed, no accidental replies.
-
-### ♾️ Unlimited Session Length — The Conversation Never Dies
-Sliding-window context compression means the Live session no longer terminates when the context window fills up. Combined with session resumption, JARVIS holds one continuous conversation for hours without losing the thread.
-
-All three Live API upgrades degrade gracefully: if the preview API ever rejects them, JARVIS automatically reconnects with the standard configuration — users never see a crash.
-
----
-
-## 🗺️ Mark Roadmap
-
-| Mark | Focus |
-|---|---|
-| **XLVIII** | Instant interrupt · parallel news · two-phase briefing · exponential backoff · vision cooldown |
-| **XLIX** | Auto-start · clipboard intelligence · assistant customization |
-| **L** | Session memory · background monitoring · proactive 2.0 · instant vision · parallel news search |
-| **LI** | Plugin system · affective dialog · proactive audio · unlimited sessions |
-| **LII+** | Plugin files: email · quiz mode · calorie counter · calendar · and more |
-
----
-
-## ⚡ Quick Start
-
-```bash
-git clone https://github.com/FatihMakes/Mark-LI.git
-cd Mark-LI
-pip install -r requirements.txt
-python main.py
-```
-
-> ⚠️ **Installation Note:** Some OS-specific dependencies are not bundled in `requirements.txt` to keep the repo lightweight. If you hit a `ModuleNotFoundError`, install the missing package with `pip install <module_name>`.
-
----
-
-## 📋 Requirements
-
-| Requirement | Details |
-| --- | --- |
-| **OS** | Windows 10/11, macOS, or Linux |
-| **Python** | 3.11 or 3.12 |
-| **Microphone** | Required for voice interaction |
-| **API Key** | Free Gemini API key (`config/api_keys.json`) |
-
----
-
-## 🗂️ Project Structure
-
-```
-Mark LI/
-├── main.py                   # Core loop — Gemini Live session, audio I/O, tool dispatch
-├── ui.py                     # PyQt6 HUD — waveform, log panel, plugin manager, camera feed
-├── setup.py                  # First-run configuration wizard
-├── plugins/
-│   └── _template.py          # Copy this to write a new plugin — one file, drop in, done
+```text
+NEXUS-AI/
 ├── actions/
-│   ├── web_search.py         # Gemini + DDG parallel search (news, research, price, compare)
-│   ├── screen_processor.py   # Screen capture & webcam vision via Gemini Live
-│   ├── background_monitor.py # User-configured topic watching — daily DDG check, no crypto
-│   ├── proactive.py          # Proactive 2.0 — time/context/rotation-aware check-ins
-│   ├── reminder.py           # OS-native scheduled notifications
-│   ├── system_monitor.py     # CPU / RAM / GPU / temperature telemetry
-│   ├── computer_settings.py  # Volume, brightness, WiFi, power
-│   ├── computer_control.py   # Keyboard shortcuts, mouse, window management
-│   ├── open_app.py           # Application launcher
-│   ├── browser_control.py    # Web browser control
-│   ├── file_controller.py    # File system operations
-│   ├── file_processor.py     # Document reading and summarization
-│   ├── send_message.py       # Messaging integration
-│   ├── weather_report.py     # Live weather data
-│   ├── flight_finder.py      # Flight search
-│   ├── youtube_video.py      # YouTube playback control
-│   ├── game_updater.py       # Game update management (Steam / Epic)
-│   ├── code_helper.py        # Code review and generation
-│   ├── dev_agent.py          # Developer task agent
-│   └── desktop.py            # Desktop and taskbar control
+│   ├── browser_control.py      # Multi-browser web automation
+│   ├── code_helper.py          # Single-file code generator & runner
+│   ├── computer_control.py      # GUI, hotkeys, mouse & keyboard automation
+│   ├── computer_settings.py     # OS volume, brightness, power controls
+│   ├── deep_think.py           # Deep analytical reasoning runner
+│   ├── desktop.py              # Desktop organization & wallpaper controls
+│   ├── dev_agent.py            # Autonomous multi-file project builder
+│   ├── device_tracker.py       # 5-layer spatial GPS asset tracker
+│   ├── file_controller.py      # File system management & disk analytics
+│   ├── file_processor.py       # Multimodal file drag-and-drop processor
+│   ├── screen_processor.py     # Webcam object vision & screen capture
+│   ├── web_search.py           # Live search, comparison & news engine
+│   └── youtube_video.py        # YouTube video extraction & summarizer
+├── config/
+│   ├── api_keys.json           # API key & preference configuration
+│   └── prompt.txt              # System prompt and assistant identity
 ├── memory/
-│   ├── memory_manager.py     # Load/save long_term.json — sessions, monitors, identity
-│   └── long_term.json        # Persistent store: identity, preferences, projects, sessions, monitors
-├── core/
-│   ├── prompt.txt            # Assistant personality and tool-routing rules
-│   └── plugin_loader.py      # Plugin engine — discovery, validation, crash isolation
-└── config/
-    └── api_keys.json         # API key, OS setting, assistant name, user name
-```
+│   ├── memory_manager.py       # Long-term memory & session summarizer
+│   └── long_term.json          # Persistent user memory store
+├── head.glb                    # 3D humanoid avatar rigged model
+├── index.html                  # Three.js WebGL2 3D avatar viewport & tracking
+├── ui.py                       # PyQt6 desktop GUI & telemetry engine
+├── main.py                     # Core Gemini Live WebSocket async event loop
+├── requirements.txt            # Python dependencies
+└── README.md                   # System documentation
 
----
+Prerequisites & Installation
+1. Requirements
+Operating System: Windows 10/11, macOS, or Linux
+Python Version: Python 3.10 to 3.13
+Hardware: Dedicated GPU recommended for simultaneous WebGL 3D rendering and real-time audio processing.
 
-## ⚠️ License
+2. Clone Repository
+git clone https://github.com/YOUR_USERNAME/NEXUS-Multimodal-AI-Core.git
+cd NEXUS-Multimodal-AI-Core
 
-Personal and non-commercial use only.
-Licensed under **[Creative Commons BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)**.
+3. Install Dependencies
+pip install -r requirements.txt
 
----
+4. Configure API Key
+Create or edit config/api_keys.json:
+{
+    "gemini_api_key": "YOUR_GEMINI_API_KEY",
+    "assistant_name": "NEXUS",
+    "user_name": "Your Name",
+    "thinking_level": "medium",
+    "voice_name": "Fenrir"
+}
 
-## 👤 Connect with the Creator
+Running NEXUS
+Launch the core application:
+python main.py
 
-Engineered by a developer building a real-world JARVIS-style assistant.
-⭐ **Star the repository to support the journey to Mark 100.**
+Quick Keyboard Shortcuts:
+F4: Toggle Microphone Mute
+F11: Toggle Full-Screen Mode
+ESC: Instant Speech Interruption
 
-| Platform | Link |
-| --- | --- |
-| YouTube | [@FatihMakes](https://www.youtube.com/@FatihMakes) |
-| Instagram | [@fatihmakes](https://www.instagram.com/fatihmakes) |
+Capabilities Overview & Tool Summary
+Module	Core Functionality
+3D Avatar Viewport	60 FPS WebGL2 avatar, real-time lip-sync watchdog, MediaPipe 1:1 eye tracking
+Gemini Live Stream	Native bidirectional 16kHz/24kHz PCM audio over WebSockets
+Dev Agent	Autonomous multi-file project creation, dependency installation, and testing
+Computer Vision	Webcam physical object identification and desktop screen analysis
+OS Automation	Windows Core Audio volume scalar, window focus, typing, and hotkeys
+Spatial Blueprint	Level-22 satellite tracking map with live telemetry overlays
+Hardware Gauges	Real-time CPU, RAM, Network I/O, and NVIDIA NVML GPU monitoring
+Remote Dashboard	Local mobile web controller with QR code login and phone mic relay
+
+Performance & Optimization Note
+Running a live 3D WebGL viewport simultaneously with real-time video face mesh tracking and full-duplex PCM audio streaming requires hardware GPU acceleration. On systems with a dedicated GPU and standard RAM, the interface runs at a locked 60 FPS.
+Opportunities & Contact
+I am actively open to:
+Full-Time Roles: AI Engineer, Multimodal Systems Developer, Full-Stack Python Engineer
+Contract & Freelance: Custom AI agents, desktop automation tools, and vision pipelines
+LinkedIn: [Insert your LinkedIn URL]
+Email: [Insert your contact email]
