@@ -1,0 +1,28 @@
+# Sensitive API Keys & User Memory
+config/api_keys.json
+memory/long_term.json
+config/last_splash.json
+
+# Personal & Private Files
+Kamran_Jalil_Khan_Resume.pdf
+nexus_vault/
+Videos of NEXUS AI/
+bugs-code.txt
+Full fledge Features List.txt
+types.LiveConnectConfig
+
+# Python Bytecode & Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+
+# Operating System Files
+desktop.ini
+Thumbs.db
+*.tmp
+*.log

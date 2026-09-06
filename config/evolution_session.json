@@ -1,0 +1,69 @@
+{
+    "active_query": "quantum molecular chemistry simulation AI",
+    "top_5_repos": [
+        {
+            "id": 1,
+            "owner_repo": "tejasiith/QuantumChemCrow",
+            "repo_name": "QuantumChemCrow",
+            "url": "https://github.com/tejasiith/QuantumChemCrow",
+            "description": "Agentic AI system for quantum chemistry that integrates LLM reasoning with quantum simulations (Hartree\u2013Fock), molecular visualization, and "
+        }
+    ],
+    "selected_repo": {
+        "id": 1,
+        "owner_repo": "tejasiith/QuantumChemCrow",
+        "repo_name": "QuantumChemCrow",
+        "url": "https://github.com/tejasiith/QuantumChemCrow",
+        "description": "Agentic AI system for quantum chemistry that integrates LLM reasoning with quantum simulations (Hartree\u2013Fock), molecular visualization, and "
+    },
+    "discovered_features": [
+        {
+            "id": 1,
+            "name": "ChemCrow",
+            "category": "Major",
+            "description": "Core architectural class.",
+            "source_file": "chemcrow\\agents\\chemcrow.py"
+        },
+        {
+            "id": 2,
+            "name": "LLMThoughtChem",
+            "category": "Major",
+            "description": "Core architectural class.",
+            "source_file": "chemcrow\\frontend\\streamlit_callback_handler.py"
+        },
+        {
+            "id": 3,
+            "name": "StreamlitCallbackHandlerChem",
+            "category": "Major",
+            "description": "Core architectural class.",
+            "source_file": "chemcrow\\frontend\\streamlit_callback_handler.py"
+        },
+        {
+            "id": 4,
+            "name": "is_smiles",
+            "category": "Minor",
+            "description": "Functional capability.",
+            "source_file": "chemcrow\\utils.py"
+        },
+        {
+            "id": 5,
+            "name": "is_multiple_smiles",
+            "category": "Minor",
+            "description": "Functional capability.",
+            "source_file": "chemcrow\\utils.py"
+        },
+        {
+            "id": 6,
+            "name": "split_smiles",
+            "category": "Minor",
+            "description": "Functional capability.",
+            "source_file": "chemcrow\\utils.py"
+        }
+    ],
+    "pending_queue": [],
+    "completed_features": [
+        "chemcrow",
+        "is_smiles"
+    ],
+    "quarantined_features": []
+}

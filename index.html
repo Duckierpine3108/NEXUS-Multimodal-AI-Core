@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS // 3D CORE</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+        body { background-color: #020617; overflow: hidden; font-family: 'Segoe UI', sans-serif; color: #00f0ff; }
+        #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
+
+        .hud-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 15px; }
+        .header-box { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0, 240, 255, 0.25); padding-bottom: 8px; background: linear-gradient(90deg, rgba(0, 240, 255, 0.08), transparent); }
+        .title { font-size: 16px; font-weight: 900; letter-spacing: 3px; text-shadow: 0 0 15px #00f0ff; }
+        
+        .status-badge { font-size: 9px; padding: 4px 10px; background: rgba(0, 240, 255, 0.1); border: 1px solid #00f0ff; border-radius: 4px; letter-spacing: 1.5px; display: flex; align-items: center; gap: 6px; }
+        .status-dot { width: 7px; height: 7px; background: #00f0ff; border-radius: 50%; box-shadow: 0 0 10px #00f0ff; }
+
+        #webcam-radar { position: absolute; top: 55px; right: 15px; width: 120px; height: 85px; border: 1px solid rgba(0, 240, 255, 0.5); background: rgba(0, 0, 0, 0.7); border-radius: 4px; overflow: hidden; display: none; pointer-events: auto; }
+        #webcam-video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); opacity: 0.7; filter: contrast(120%) hue-rotate(180deg); }
+        .radar-label { position: absolute; bottom: 2px; left: 4px; font-size: 7px; letter-spacing: 1px; color: #00f0ff; }
+        
+        .scanlines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 240, 255, 0.02) 50%); background-size: 100% 4px; pointer-events: none; z-index: 5; }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+
+    <div class="hud-overlay">
+        <div class="header-box">
+            <div>
+                <div class="title">NEXUS // 3D CORE</div>
+                <div style="font-size: 8px; opacity: 0.6; letter-spacing: 2px;">NEURAL RIG & WATCHDOG ONLINE</div>
+            </div>
+            <div class="status-badge">
+                <div class="status-dot" id="status-dot"></div>
+                <span id="ai-status">AI STANDBY</span>
+            </div>
+        </div>
+
+        <div id="webcam-radar">
+            <video id="webcam-video" autoplay playsinline muted></video>
+            <div class="radar-label">OPTICS ACTIVE</div>
+        </div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script>
+        // --- 1. LOCKED BONE ANGLES ---
+        const BAKED_CONFIG = {
+            arm: { x: 64, y: 13, z: 11 },
+            shoulder: { x: 12, y: 0, z: 0 },
+            elbow: 0
+        };
+
+        // --- 2. THREE.JS INITIALIZATION ---
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x020617, 0.08);
+
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 1.45, 0.85);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        renderer.setClearColor(0x020617, 1.0);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.15;
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.target.set(0, 1.40, 0);
+
+        const clock = new THREE.Clock();
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.1);
+        scene.add(ambientLight);
+
+        const cyanKey = new THREE.DirectionalLight(0x00f0ff, 2.0);
+        cyanKey.position.set(2, 3, 2.5);
+        scene.add(cyanKey);
+
+        const warmFill = new THREE.DirectionalLight(0xffeedd, 1.2);
+        warmFill.position.set(-2, 2, 2);
+        scene.add(warmFill);
+
+        const rimLight = new THREE.PointLight(0x0088ff, 3.5, 8);
+        rimLight.position.set(0, 2, -2);
+        scene.add(rimLight);
+
+        const grid = new THREE.GridHelper(30, 40, 0x00f0ff, 0x002244);
+        grid.position.y = 0;
+        scene.add(grid);
+
+        // --- 3. SKELETON & MORPH TARGETS ---
+        let avatarModel = null;
+        let morphMeshes = [];
+        let jawBone = null;
+        const boneRestQuats = new Map();
+
+        const avatarBones = {
+            head: null,
+            spine: null,
+            leftShoulder: null,
+            rightShoulder: null,
+            leftUpperArm: null,
+            rightUpperArm: null,
+            leftForeArm: null,
+            rightForeArm: null
+        };
+
+        // --- 4. HARDWARE AUDIO WATCHDOG (PREVENTS ENDLESS YAPPING) ---
+        let lastSpeechPulseTime = 0;
+        const SPEECH_WATCHDOG_TIMEOUT = 140; // Clamps mouth to 0 after 140ms of silence
+        let speechIntensity = 0.0;
+
+        function triggerSpeechPulse() {
+            lastSpeechPulseTime = performance.now();
+        }
+
+        function setAISpeakingDirect(speaking) {
+            if (speaking) {
+                lastSpeechPulseTime = performance.now();
+            } else {
+                lastSpeechPulseTime = 0; // Immediate cutoff
+            }
+        }
+
+        // Bridge exposed to Python
+        window.NexusCore = {
+            pulseSpeech: () => triggerSpeechPulse(),
+            setLiveSpeaking: (state) => setAISpeakingDirect(state),
+            setCameraMode: (mode) => {
+                if (mode === 'bust') {
+                    camera.position.set(0, 1.45, 0.75);
+                    controls.target.set(0, 1.42, 0);
+                } else {
+                    camera.position.set(0, 1.15, 2.2);
+                    controls.target.set(0, 1.0, 0);
+                }
+            },
+            toggleTracking: (forceState = null) => {
+                if (forceState !== null) {
+                    if (forceState && !trackingActive) toggleWebcamTracking();
+                    else if (!forceState && trackingActive) toggleWebcamTracking();
+                } else {
+                    toggleWebcamTracking();
+                }
+                return trackingActive;
+            },
+            pauseCamera: () => {
+                if (webcamCamera) {
+                    try { webcamCamera.stop(); } catch(e){}
+                }
+                // Explicitly stop hardware stream tracks in browser
+                const videoElement = document.getElementById('webcam-video');
+                if (videoElement && videoElement.srcObject) {
+                    try {
+                        const tracks = videoElement.srcObject.getTracks();
+                        tracks.forEach(track => track.stop());
+                        videoElement.srcObject = null;
+                    } catch(e){}
+                }
+                console.log("[Avatar] 🛑 Camera hardware fully released for Vision tool.");
+            },
+            resumeCamera: () => {
+                if (trackingActive) {
+                    setTimeout(() => {
+                        toggleWebcamTracking(); // Re-initializes clean tracking stream
+                        console.log("[Avatar] 🟢 Eye tracking camera re-engaged.");
+                    }, 600);
+                }
+            }
+        };
+
+        // Load 3D Model
+        const loader = new THREE.GLTFLoader();
+        loader.load(
+            './head.glb',
+            function (gltf) {
+                avatarModel = gltf.scene;
+                avatarModel.position.set(0, 0, 0);
+                scene.add(avatarModel);
+
+                avatarModel.traverse((child) => {
+                    if (child.morphTargetDictionary && child.morphTargetInfluences) {
+                        morphMeshes.push(child);
+                    }
+
+                    if (child.isBone) {
+                        boneRestQuats.set(child, child.quaternion.clone());
+
+                        const name = child.name.toLowerCase();
+                        if (name.includes('head') && !avatarBones.head) avatarBones.head = child;
+                        else if ((name.includes('spine') || name.includes('chest')) && !avatarBones.spine) avatarBones.spine = child;
+                        else if ((name.includes('leftshoulder') || name.includes('shoulder_l') || name.includes('clavicle_l')) && !avatarBones.leftShoulder) avatarBones.leftShoulder = child;
+                        else if ((name.includes('rightshoulder') || name.includes('shoulder_r') || name.includes('clavicle_r')) && !avatarBones.rightShoulder) avatarBones.rightShoulder = child;
+                        else if ((name.includes('leftarm') || name.includes('arm_l') || name.includes('upperarm_l')) && !avatarBones.leftUpperArm) avatarBones.leftUpperArm = child;
+                        else if ((name.includes('rightarm') || name.includes('arm_r') || name.includes('upperarm_r')) && !avatarBones.rightUpperArm) avatarBones.rightUpperArm = child;
+                        else if ((name.includes('leftforearm') || name.includes('forearm_l') || name.includes('leftlowerarm')) && !avatarBones.leftForeArm) avatarBones.leftForeArm = child;
+                        else if ((name.includes('rightforearm') || name.includes('forearm_r') || name.includes('rightlowerarm')) && !avatarBones.rightForeArm) avatarBones.rightForeArm = child;
+                        else if (name.includes('jaw')) jawBone = child;
+                    }
+                });
+
+                applyPermanentPose();
+            },
+            undefined,
+            function (err) { console.error("Error loading head.glb:", err); }
+        );
+
+        function applyPermanentPose() {
+            if (!avatarModel) return;
+
+            const rArmX = THREE.MathUtils.degToRad(BAKED_CONFIG.arm.x);
+            const rArmY = THREE.MathUtils.degToRad(BAKED_CONFIG.arm.y);
+            const rArmZ = THREE.MathUtils.degToRad(BAKED_CONFIG.arm.z);
+
+            const rShX = THREE.MathUtils.degToRad(BAKED_CONFIG.shoulder.x);
+            const rShY = THREE.MathUtils.degToRad(BAKED_CONFIG.shoulder.y);
+            const rShZ = THREE.MathUtils.degToRad(BAKED_CONFIG.shoulder.z);
+
+            if (avatarBones.leftUpperArm && boneRestQuats.has(avatarBones.leftUpperArm)) {
+                const rest = boneRestQuats.get(avatarBones.leftUpperArm);
+                const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(rArmX, rArmY, rArmZ, 'XYZ'));
+                avatarBones.leftUpperArm.quaternion.copy(rest).multiply(q);
+            }
+
+            if (avatarBones.rightUpperArm && boneRestQuats.has(avatarBones.rightUpperArm)) {
+                const rest = boneRestQuats.get(avatarBones.rightUpperArm);
+                const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(rArmX, -rArmY, -rArmZ, 'XYZ'));
+                avatarBones.rightUpperArm.quaternion.copy(rest).multiply(q);
+            }
+
+            if (avatarBones.leftShoulder && boneRestQuats.has(avatarBones.leftShoulder)) {
+                const rest = boneRestQuats.get(avatarBones.leftShoulder);
+                const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(rShX, rShY, rShZ, 'XYZ'));
+                avatarBones.leftShoulder.quaternion.copy(rest).multiply(q);
+            }
+
+            if (avatarBones.rightShoulder && boneRestQuats.has(avatarBones.rightShoulder)) {
+                const rest = boneRestQuats.get(avatarBones.rightShoulder);
+                const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(rShX, -rShY, -rShZ, 'XYZ'));
+                avatarBones.rightShoulder.quaternion.copy(rest).multiply(q);
+            }
+        }
+
+        // --- 5. NATURAL SUBTLE LIP SYNC ENGINE ---
+        function updateLipSyncAnimation(time) {
+            const now = performance.now();
+            const isAudioFlowing = (now - lastSpeechPulseTime) < SPEECH_WATCHDOG_TIMEOUT;
+
+            // Update Status Badge (Cached: 0% DOM thrashing)
+            if (window._lastUIState !== isAudioFlowing) {
+                window._lastUIState = isAudioFlowing;
+                const status = document.getElementById('ai-status');
+                const dot = document.getElementById('status-dot');
+                if (status) {
+                    status.innerText = isAudioFlowing ? 'AI TRANSMITTING' : 'AI STANDBY';
+                    status.style.color = isAudioFlowing ? '#ff0055' : '#00f0ff';
+                }
+                if (dot) dot.style.background = isAudioFlowing ? '#ff0055' : '#00f0ff';
+            }
+
+            // Target amplitude: 1.0 during active sound pulse, 0.0 when sound stops
+            const targetAmp = isAudioFlowing ? 1.0 : 0.0;
+            speechIntensity = THREE.MathUtils.lerp(speechIntensity, targetAmp, isAudioFlowing ? 0.30 : 0.50);
+
+            // Subtle, refined human speech articulation (NOT exaggerated gaping)
+            const syllableWave = (Math.sin(time * 20.0) * 0.4 + 0.6) * Math.abs(Math.sin(time * 10.0));
+            const widthWave = Math.cos(time * 13.0) * 0.3 + 0.7;
+
+            // Natural conversational amplitudes (max ~0.28 instead of 0.90)
+            const jawVal = syllableWave * speechIntensity * 0.28;
+            const visemeAaVal = syllableWave * widthWave * speechIntensity * 0.32;
+            const visemeOVal = (Math.sin(time * 8.0) * 0.5 + 0.5) * speechIntensity * 0.26;
+            const visemeEVal = widthWave * speechIntensity * 0.22;
+
+            // Natural Eye Blinking (~4.5s)
+            const blinkCycle = 4.5;
+            const blinkDuration = 0.18;
+            const timeInCycle = time % blinkCycle;
+            const blinkVal = timeInCycle < blinkDuration ? Math.sin((timeInCycle / blinkDuration) * Math.PI) : 0;
+
+            // Hard zero clamp when silence occurs
+            const isSilent = speechIntensity < 0.005;
+
+            for (let m = 0; m < morphMeshes.length; m++) {
+                const mesh = morphMeshes[m];
+                const dict = mesh.morphTargetDictionary;
+                const influences = mesh.morphTargetInfluences;
+                if (!dict || !influences) continue;
+
+                for (let name in dict) {
+                    const low = name.toLowerCase();
+                    const idx = dict[name];
+
+                    // Blinking
+                    if (low.includes('eyeblink') || low.includes('blink') || low.includes('eyesclosed')) {
+                        influences[idx] = blinkVal;
+                    }
+                    // Jaw / Mouth
+                    else if (low.includes('jawopen') || low.includes('mouthopen') || low === 'mouth_open' || low === 'jaw_open') {
+                        influences[idx] = isSilent ? 0.0 : jawVal;
+                    }
+                    // Viseme AA
+                    else if (low.includes('viseme_aa') || low === 'mouthopen' || low.includes('viseme_a') || low === 'v_aa' || low === 'aa') {
+                        influences[idx] = isSilent ? 0.0 : visemeAaVal;
+                    }
+                    // Viseme O
+                    else if (low.includes('viseme_o') || low.includes('viseme_u') || low.includes('mouthpucker') || low.includes('mouthfunnel') || low === 'v_oh' || low === 'oh') {
+                        influences[idx] = isSilent ? 0.0 : visemeOVal;
+                    }
+                    // Viseme E
+                    else if (low.includes('viseme_e') || low.includes('viseme_i') || low === 'v_ee' || low === 'ee') {
+                        influences[idx] = isSilent ? 0.0 : visemeEVal;
+                    }
+                }
+            }
+
+            // Bone Jaw Fallback
+            if (jawBone && boneRestQuats.has(jawBone)) {
+                const rest = boneRestQuats.get(jawBone);
+                const jawOffset = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), isSilent ? 0.0 : jawVal * 0.15);
+                jawBone.quaternion.copy(rest).multiply(jawOffset);
+            }
+        }
+
+        // --- 6. WEBCAM EYE & HEAD TRACKING ---
+        let faceMesh = null, webcamCamera = null;
+        let targetLookX = 0, targetLookY = 0;
+        let currentLookX = 0, currentLookY = 0;
+        let trackingActive = false;
+
+        function toggleWebcamTracking() {
+            const radar = document.getElementById('webcam-radar');
+            const videoElement = document.getElementById('webcam-video');
+
+            if (trackingActive) {
+                trackingActive = false;
+                radar.style.display = 'none';
+                if (webcamCamera) webcamCamera.stop();
+                targetLookX = 0; targetLookY = 0;
+                return;
+            }
+
+            radar.style.display = 'block';
+            trackingActive = true;
+
+            if (!faceMesh) {
+                faceMesh = new FaceMesh({
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+                });
+                faceMesh.setOptions({
+                    maxNumFaces: 1,
+                    refineLandmarks: true,
+                    minDetectionConfidence: 0.5,
+                    minTrackingConfidence: 0.5
+                });
+                faceMesh.onResults((results) => {
+                    if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+                        const nose = results.multiFaceLandmarks[0][1];
+                        targetLookX = (nose.x - 0.5) * -1.2;
+                        targetLookY = (nose.y - 0.5) * 1.1;
+                    }
+                });
+            }
+
+            webcamCamera = new Camera(videoElement, {
+                onFrame: async () => {
+                    if (trackingActive) await faceMesh.send({ image: videoElement });
+                },
+                width: 320,
+                height: 240
+            });
+            webcamCamera.start();
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- 7. MAIN RENDER LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            currentLookX += (targetLookX - currentLookX) * 0.08;
+            currentLookY += (targetLookY - currentLookY) * 0.08;
+
+            if (avatarBones.head && boneRestQuats.has(avatarBones.head)) {
+                const rest = boneRestQuats.get(avatarBones.head);
+                const lookQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(currentLookY, currentLookX, 0, 'YXZ'));
+                avatarBones.head.quaternion.copy(rest).multiply(lookQuat);
+            }
+
+            updateLipSyncAnimation(elapsedTime);
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
