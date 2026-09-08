@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXUS OS - Cinematic Boot Splash</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      user-select: none;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #020306;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* =========================================
+       1. BACKGROUND FLUID GOOGLE MESH AURA
+    ========================================= */
+    .background-canvas {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .color-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(130px);
+      opacity: 0.5;
+      will-change: transform;
+      animation: floatAura 22s infinite ease-in-out alternate;
+    }
+
+    .orb-blue {
+      width: 650px;
+      height: 650px;
+      background: #4285F4;
+      top: -10%;
+      left: 10%;
+    }
+
+    .orb-red {
+      width: 580px;
+      height: 580px;
+      background: #EA4335;
+      top: 40%;
+      right: 5%;
+      animation-duration: 25s;
+    }
+
+    .orb-yellow {
+      width: 520px;
+      height: 520px;
+      background: #FBBC05;
+      bottom: -10%;
+      left: 20%;
+      animation-duration: 19s;
+    }
+
+    .orb-green {
+      width: 620px;
+      height: 620px;
+      background: #34A853;
+      top: 15%;
+      right: 25%;
+      animation-duration: 27s;
+    }
+
+    .vignette-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(2, 3, 6, 0.3) 0%, rgba(2, 3, 6, 0.95) 100%);
+      z-index: 2;
+    }
+
+    /* =========================================
+       2. FROSTED GLASS CENTERPIECE
+    ========================================= */
+    .splash-container {
+      position: relative;
+      z-index: 10;
+      width: 640px;
+      padding: 60px 45px 50px 45px;
+      background: rgba(12, 15, 24, 0.58);
+      backdrop-filter: blur(50px) saturate(210%);
+      -webkit-backdrop-filter: blur(50px) saturate(210%);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 40px;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.85),
+                  inset 0 1px 1px rgba(255, 255, 255, 0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* =========================================
+       3. 3D GYROSCOPIC LOGO CORE
+    ========================================= */
+    .logo-stage {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .orbit-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 2.5px solid transparent;
+      box-sizing: border-box;
+    }
+
+    /* Google Blue & Red Ring */
+    .ring-1 {
+      inset: 0;
+      border-top-color: #4285F4;
+      border-right-color: #EA4335;
+      filter: drop-shadow(0 0 20px rgba(66, 133, 244, 0.85));
+      animation: spinClockwise 4.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+
+    /* Google Yellow & Green Ring */
+    .ring-2 {
+      inset: 16px;
+      border-bottom-color: #FBBC05;
+      border-left-color: #34A853;
+      filter: drop-shadow(0 0 20px rgba(52, 168, 83, 0.85));
+      animation: spinCounter 3.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+
+    /* Inner Shimmer Ring */
+    .ring-3 {
+      inset: 32px;
+      border: 1.5px dashed rgba(255, 255, 255, 0.35);
+      animation: spinClockwise 9s linear infinite;
+    }
+
+    /* Central Glowing Pearl */
+    .energy-core {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #ffffff 0%, #4285F4 50%, #0d1a38 100%);
+      box-shadow: 0 0 45px rgba(66, 133, 244, 0.9);
+      animation: pulseCore 3s infinite ease-in-out;
+    }
+
+    /* =========================================
+       4. TYPOGRAPHY & LIGHT SWEEP
+    ========================================= */
+    .brand-title {
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: 14px;
+      text-transform: uppercase;
+      background: linear-gradient(110deg, #ffffff 25%, #8ab4f8 45%, #ffffff 60%, #c58af9 85%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: lightSweep 4s linear infinite;
+      margin-bottom: 8px;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.55);
+      margin-bottom: 40px;
+    }
+
+    /* =========================================
+       5. CLEAN STATUS TICKER (NO OVERLAPPING)
+    ========================================= */
+    .status-window {
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      width: 100%;
+    }
+
+    .status-text {
+      font-size: 13px;
+      letter-spacing: 2px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #8ab4f8;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.35s ease, transform 0.35s ease, color 0.35s ease;
+    }
+
+    .status-text.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* =========================================
+       6. MULTI-COLOR PROGRESS BAR
+    ========================================= */
+    .progress-wrapper {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .progress-track {
+      flex: 1;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #4285F4 0%, #EA4335 33%, #FBBC05 66%, #34A853 100%);
+      box-shadow: 0 0 15px rgba(66, 133, 244, 0.85);
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 10px;
+    }
+
+    .progress-number {
+      font-size: 13px;
+      font-family: "Courier New", monospace;
+      font-weight: 700;
+      color: #81c995;
+      width: 45px;
+      text-align: right;
+    }
+
+    /* =========================================
+       7. REPLAY CONTROL
+    ========================================= */
+    .replay-control {
+      margin-top: 35px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .replay-control.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .replay-button {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #ffffff;
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-size: 12px;
+      letter-spacing: 1px;
+      cursor: pointer;
+      backdrop-filter: blur(15px);
+      transition: all 0.25s ease;
+    }
+
+    .replay-button:hover {
+      background: rgba(66, 133, 244, 0.3);
+      border-color: #4285F4;
+      transform: scale(1.05);
+    }
+
+    /* =========================================
+       ANIMATIONS
+    ========================================= */
+    @keyframes spinClockwise {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes spinCounter {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(-360deg); }
+    }
+
+    @keyframes pulseCore {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 45px rgba(66, 133, 244, 0.85); }
+      50% { transform: scale(1.1); box-shadow: 0 0 65px rgba(234, 67, 53, 0.9); }
+    }
+
+    @keyframes lightSweep {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    @keyframes floatAura {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      50% { transform: translate3d(60px, -50px, 0) scale(1.08); }
+      100% { transform: translate3d(-40px, 50px, 0) scale(0.96); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FLUID BACKGROUND GOOGLE MESH -->
+  <div class="background-canvas">
+    <div class="color-orb orb-blue"></div>
+    <div class="color-orb orb-red"></div>
+    <div class="color-orb orb-yellow"></div>
+    <div class="color-orb orb-green"></div>
+  </div>
+
+  <div class="vignette-overlay"></div>
+
+  <!-- FROSTED GLASS CENTERPIECE -->
+  <div class="splash-container">
+    
+    <!-- 3D GYROSCOPIC LOGO CORE -->
+    <div class="logo-stage">
+      <div class="orbit-ring ring-1"></div>
+      <div class="orbit-ring ring-2"></div>
+      <div class="orbit-ring ring-3"></div>
+      <div class="energy-core"></div>
+    </div>
+
+    <!-- TYPOGRAPHY -->
+    <div class="brand-title">NEXUS</div>
+    <div class="brand-subtitle">Autonomous Multimodal Operating System</div>
+
+    <!-- STATUS TICKER -->
+    <div class="status-window">
+      <div class="status-text" id="status-ticker">STARTING HARDWARE LAYER...</div>
+    </div>
+
+    <!-- MULTI-COLOR PROGRESS BAR -->
+    <div class="progress-wrapper">
+      <div class="progress-track">
+        <div class="progress-bar-fill" id="bar-fill"></div>
+      </div>
+      <div class="progress-number" id="percent-label">0%</div>
+    </div>
+
+    <!-- REPLAY BUTTON -->
+    <div class="replay-control" id="replay-box">
+      <button class="replay-button" onclick="startCinematicSplash()">↻ Replay Boot Splash</button>
+    </div>
+
+  </div>
+
+  <script>
+    // 20-SECOND CINEMATIC DIAGNOSTIC STAGES
+    const splashStages = [
+      { text: "✦ Initializing Quantum Kernel 6.12", pct: 12 },
+      { text: "✦ Probing Hardware Buses & Neural VRAM", pct: 25 },
+      { text: "✦ Synchronizing Multimodal Audio & Vision Engine", pct: 40 },
+      { text: "✦ Loading Faster-Whisper Neural Perception", pct: 58 },
+      { text: "✦ Connecting Vector Memory & Identity Vault", pct: 72 },
+      { text: "✦ Compiling Frosted Glass Compositor Shaders", pct: 88 },
+      { text: "✦ Unrestricted Root Agent Bus Online", pct: 96 },
+      { text: "✦ NEXUS AI Fully Online. System Ready.", pct: 100 }
+    ];
+
+    // Optional Sci-Fi Boot Audio Synthesizer (Web Audio API)
+    function playBootChime() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(220, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 1.2);
+
+        gain.gain.setValueAtTime(0.01, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + 0.6);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.8);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 1.8);
+      } catch (e) {
+        // Audio policy ignore
+      }
+    }
+
+    function startCinematicSplash() {
+      const ticker = document.getElementById('status-ticker');
+      const fill = document.getElementById('bar-fill');
+      const label = document.getElementById('percent-label');
+      const replayBox = document.getElementById('replay-box');
+
+      // Reset
+      replayBox.classList.remove('show');
+      fill.style.width = '0%';
+      label.innerText = '0%';
+      ticker.style.color = '#8ab4f8';
+
+      playBootChime();
+
+      let step = 0;
+      const totalSteps = splashStages.length;
+      const stepDuration = 2500; // ~20 Seconds Total
+
+      function runStep() {
+        if (step < totalSteps) {
+          const current = splashStages[step];
+
+          // 1. Fade out old text cleanly
+          ticker.classList.remove('visible');
+
+          // 2. Change text and fade in (No overlapping)
+          setTimeout(() => {
+            ticker.innerText = current.text;
+            ticker.classList.add('visible');
+            fill.style.width = current.pct + '%';
+            label.innerText = current.pct + '%';
+
+            if (current.pct === 100) {
+              ticker.style.color = '#81c995'; // Glowing Green on completion
+            }
+          }, 320);
+
+          step++;
+          setTimeout(runStep, stepDuration);
+        } else {
+          // Finished: Show replay button
+          setTimeout(() => {
+            replayBox.classList.add('show');
+          }, 600);
+        }
+      }
+
+      runStep();
+    }
+
+    // Auto-play on load
+    window.addEventListener('DOMContentLoaded', startCinematicSplash);
+  </script>
+</body>
+</html>
